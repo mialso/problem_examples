@@ -8,3 +8,4 @@ In order to answer the question, first of all, let's put the line between "engin
 
 ## The list of engineering problems:
 ##### Reusable components
+> npm run start_one

@@ -26,8 +26,8 @@ const showTimedNotification = ({text, timeoutMsec}) => ({ getState, dispatch }) 
     if (getState().notification.inProgress) {
         return
     }
-    console.info(`NOTIFICATION: ${text}`)
     dispatch({ type: NOTIFICATION_START })
+    console.info(`NOTIFICATION: ${text}`)
     setTimeout(() => {
         dispatch({ type: NOTIFICATION_COMPLETE })
     }, timeoutMsec)
@@ -37,4 +37,6 @@ module.exports = {
     showNotification,
     showTimedNotificationPromise,
     showTimedNotification,
+    NOTIFICATION_START,
+    NOTIFICATION_COMPLETE,
 }

@@ -91,49 +91,57 @@ function storeManagerVersionOne() {
 }
 
 /*
- * LATEST, without memory leaks
+ * LATEST, without memory leaks???
  */
-
-function storeManagerVersionTwo() {
-    const NOTIFICATION_BUTTON = 'notification'
-    const NotificationMessage = showTimedNotification({ text: 'STATE MANAGER 2', timeoutMsec: 2000 })
-    const NotificationButton = ReusableButtonOne(NOTIFICATION_BUTTON)
-
-    function createStateManager() {
-        const state = {
-            button: {
-                [NOTIFICATION_BUTTON]: { isDisabled: false },
-            },
-            notification: { inProgress: false },
-        }
-        function dispatch(message) {
-            switch (message.type) {
-                case BUTTON_CLICK: {
-                    state.button[message.meta.id].isDisabled = true
-                    NotificationMessage({ getState: () => state, dispatch })
-                    break
+const NOTIFICATION_BUTTON = 'notification'
+function createStateManager(runNotification) {
+    const state = {
+        button: {
+            [NOTIFICATION_BUTTON]: { isDisabled: false },
+        },
+        notification: { inProgress: false },
+    }
+    function dispatch(message) {
+        console.info(`LOG: ${JSON.stringify(message)}`)
+        switch (message.type) {
+            case BUTTON_CLICK: {
+                state.button[message.meta.id].isDisabled = true
+                if (message.meta.id === NOTIFICATION_BUTTON) {
+                    runNotification({ getState: () => state, dispatch })
                 }
-                case NOTIFICATION_START: {
-                    state.notification.inProgress = true
-                    break
-                }
-                case NOTIFICATION_COMPLETE: {
-                    state.notification.inProgress = true
-                    break
-                }
-                default: break
+                break
             }
-        }
-        return {
-            getState() { return state },
-            dispatch,
+            case NOTIFICATION_START: {
+                state.notification.inProgress = true
+                break
+            }
+            case NOTIFICATION_COMPLETE: {
+                state.notification.inProgress = false
+                state.button[NOTIFICATION_BUTTON].isDisabled = false
+                break
+            }
+            default: break
         }
     }
-
-    const stateManager = createStateManager()
-    const notificationButton = NotificationButton(stateManager)
-    notificationButton.onClick()
-    notificationButton.onClick()
+    return {
+        getState() { return state },
+        dispatch: (m) => setTimeout(() => dispatch(m)),
+    }
 }
 
+function storeManagerVersionTwo() {
+    const NotificationButton = ReusableButtonOne(NOTIFICATION_BUTTON)
+    const NotificationMessage = showTimedNotification({ text: 'STATE MANAGER 2', timeoutMsec: 2000 })
+
+
+    const stateManager = createStateManager(NotificationMessage)
+    const notificationButton = NotificationButton(stateManager)
+
+    const intervalId = setInterval(() => {
+        console.info('TICK: try click')
+        notificationButton.onClick()
+    }, 300)
+
+    setTimeout(() => clearInterval(intervalId), 5000)
+}
 storeManagerVersionTwo()
