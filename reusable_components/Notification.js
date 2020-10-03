@@ -15,12 +15,26 @@ const showNotification = (text) => new Promise((resolve) => {
  * 1) name
  * 2) robust interface
  */
-const showTimedNotification = ({ text, timeoutMsec }) => new Promise((resolve) => {
+const showTimedNotificationPromise = ({ text, timeoutMsec }) => new Promise((resolve) => {
     console.info(`NOTIFICATION: ${text}`)
     setTimeout(() => resolve(), timeoutMsec)
 })
 
+const NOTIFICATION_START = 'NOTIFICATION_START'
+const NOTIFICATION_COMPLETE = 'NOTIFICATION_COMPLETE'
+const showTimedNotification = ({text, timeoutMsec}) => ({ getState, dispatch }) => {
+    if (getState().notification.inProgress) {
+        return
+    }
+    console.info(`NOTIFICATION: ${text}`)
+    dispatch({ type: NOTIFICATION_START })
+    setTimeout(() => {
+        dispatch({ type: NOTIFICATION_COMPLETE })
+    }, timeoutMsec)
+}
+
 module.exports = {
     showNotification,
+    showTimedNotificationPromise,
     showTimedNotification,
 }
